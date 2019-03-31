@@ -57,7 +57,7 @@ class MIME::Type
   end
 
   # The released version of the mime-types library.
-  VERSION = '3.2.2'
+  VERSION = '3.3'
 
   include Comparable
 
@@ -285,7 +285,14 @@ class MIME::Type
   # Merge the +extensions+ provided into this MIME::Type. The extensions added
   # will be merged uniquely.
   def add_extensions(*extensions)
-    self.extensions += extensions
+    extensions = Array(extensions).flatten.compact
+    if @extensions.frozen?
+      @extensions = @extensions | extensions
+    else
+      @extensions.merge(extensions)
+    end
+    @extensions.merge(extensions)
+    MIME::Types.send(:reindex_extensions, self)
   end
 
   ##
